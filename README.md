@@ -2,6 +2,7 @@
 ## full start to finish workflow for basecalling, minimapping, and modkit for rna002 data
 
 
+## Some important little coding tips to help out, feel free to reach out w/ any questions.
 ### adding a "#" sign in front makes it a comment, so anything following that would be a comment to explain. I've got no clue why Sbatch has a # in front of it, but keep and ignore it.
 ### Another important thing is using "". You can choose to use or not use, I prefer using them, but stay consistent because if not things get incredibly messy.
 
