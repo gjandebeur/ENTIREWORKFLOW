@@ -47,7 +47,7 @@ Just copy paste this chunk after the sbatch part but before the dorado script.**
 
 
 **To run dorado youll follow this formatting 
-for reference, adding "\" to the end of the line tells your system that the command isn't done being written yet. So basically if you have extra spaces or anything other than this specific thing at the end of the line, your code wont work. So for every command I only add 1 space between and change lines by pressing enter only.**
+for reference, adding "\\" to the end of the line tells your system that the command isn't done being written yet. So basically if you have extra spaces or anything other than this specific thing at the end of the line, your code wont work. So for every command I only add 1 space between and change lines by pressing enter only.**
 
 
 #theres a slight chance that youre gonna get an error about formatting, if so its because the model needs to be placed somewhere else, just chatgpt the chunk of code and your error and you should be able to debug it.
