@@ -3,6 +3,7 @@ full start to finish workflow for basecalling, minimapping, and modkit for rna00
 
 
 ## Some important little coding tips to help out, feel free to reach out w/ any questions.
+
 **adding a "#" sign in front makes it a comment, so anything following that would be a comment to explain. I've got no clue why Sbatch has a # in front of it, but keep and ignore it.**
 
 **If any path ends in a "/" it means its a directory and contains files, if just .txt or any format then its obv a file.**
