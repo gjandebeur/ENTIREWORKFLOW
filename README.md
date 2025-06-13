@@ -1,10 +1,13 @@
 # ENTIREWORKFLOW
-## full start to finish workflow for basecalling, minimapping, and modkit for rna002 data
+full start to finish workflow for basecalling, minimapping, and modkit for rna002 data
 
 
 ## Some important little coding tips to help out, feel free to reach out w/ any questions.
-### adding a "#" sign in front makes it a comment, so anything following that would be a comment to explain. I've got no clue why Sbatch has a # in front of it, but keep and ignore it.
-### Another important thing is using "". You can choose to use or not use, I prefer using them, but stay consistent because if not things get incredibly messy.
+**adding a "#" sign in front makes it a comment, so anything following that would be a comment to explain. I've got no clue why Sbatch has a # in front of it, but keep and ignore it.
+If any path ends in a "/" it means its a directory and contains files, if just .txt or any format then its obv a file.
+Another important thing is using "". You can choose to use or not use, I prefer using them, but stay consistent because if not things get incredibly messy.
+Directories are very important! I recommend making a batch folder to put your scripts into, by this command "mkdir -p "ourdisk/hpc/rnafold/ADD_UR_USERNAME/dont_archive/batch/"
+You may already know this but just incase, use "cd /" to pull yourself back into your root directory and then do "cd /ourdisk/hpc/rnafold/" for the labs data and then just "cd + whatever directory youre wanting to go into". Remember though that you cant run a script without being in that specific directory, and if unlisted then outputs go to that directory too**
 
 Starting off here's your start to any slurm submitted job. (your sbatch file)
 
