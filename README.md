@@ -2,7 +2,7 @@
 full start to finish workflow for basecalling and minimapping for rna002 data
 
 
-## Some important little coding tips to help out, feel free to reach out w/ any questions.
+## Some important coding tips to help out, feel free to reach out w/ any questions.
 
 
 ### Some of these may be redundant but unsure of coding experience
