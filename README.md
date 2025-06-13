@@ -16,7 +16,7 @@ full start to finish workflow for basecalling and minimapping for rna002 data
 You can also use "cd /" to pull yourself back into your root directory and then do "cd /ourdisk/hpc/rnafold/" for the labs data and then just (cd + whatever directory youre wanting to go into).**
 *Remember though that you cant run a script without being in that specific directory, and if you dont use absolute paths then the outputs go to that specific directory too*
 
-Starting off here's your start to any slurm submitted job. (your sbatch file)
+Starting off here's your start to any slurm submitted job. (your sbatch file). Remove comments if wanted on script but shouldn't affect code itself.
 
 
     #!/bin/bash
