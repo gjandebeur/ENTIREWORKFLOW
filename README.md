@@ -44,6 +44,8 @@ Just copy paste this chunk after the sbatch part but before the dorado script.**
         module load HTSlib
         module load protobuf
 
+        module load SAMtools/1.16.1-GCC-11.3.0 #this ones for minimap but add here too
+
 
 
 **To run dorado youll follow this formatting 
