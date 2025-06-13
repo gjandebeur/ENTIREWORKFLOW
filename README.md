@@ -32,7 +32,7 @@ Starting off here's your start to any slurm submitted job. (your sbatch file). R
 
 **The first step is to run dorado to basecall your data (takes fast5 and reads as A,C,T,G). The software can't write "U" so every call will say "T" instead but it means uracil.**
 
-**For any script youll add that sbatch to top, MAKING SURE that #!/bin/bash is on line 1. If its not on line 1 it will not run and won't even tell u where the error is.**
+**For any script youll add that sbatch to top, MAKING SURE that #!/bin/bash is on line 1. I've spent hours before looking at why my code wont run to find out this is why**
 
 **The following modules need to be loaded to run dorado, these are dependencies that are (cant think of a better analogy here) basically like modifications to a gene, necessary and won't work without them. 
 Just copy paste this chunk after the sbatch part but before the dorado script.**
