@@ -34,7 +34,7 @@ Starting off here's your start to any slurm submitted job. (your sbatch file). R
 
 **For any script youll add that sbatch to top, MAKING SURE that #!/bin/bash is on line 1. I've spent hours before looking at why my code wont run to find out this is why**
 
-**The following modules need to be loaded to run dorado, these are dependencies that are (cant think of a better analogy here) basically like modifications to a gene, necessary and won't work without them. 
+**The following modules need to be loaded to run dorado, these are dependencies that are kinda like R packages you would load in (but in UNIX).
 Just copy paste this chunk after the sbatch part but before the dorado script.**
 
         module load GCC
