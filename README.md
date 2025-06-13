@@ -74,7 +74,7 @@ for reference, adding "\\" to the end of the line tells your system that the com
         "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/reference/GRCh38.fa" \ #this is your ref file (MUST BE .fasta or .fa) 
         "/this/is/your/dorado/output/that/your/mapping.fastq" > "           "/this/is/your/output/alignedsplice.sam    
 
-**If you would rather use the transcriptome I'll attach the path to the updated version, just replace the genome part with it. its already been indexed too (if needed just do samtools index before any .fa to index it**
+**If you would rather use the transcriptome I'll attach the path to the updated version, just replace the genome part with it. its already been indexed too but if needed ever just do samtools index before any .fa to index it**
 ### path : "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/reference/gencode.v47.transcripts.fa"
 
 ### The output has to stay .sam but u can change the name to whatever, I prefer naming it alignedsplice to show that its aligned and has splice variants (just improves mapping slightly but unimportant).
