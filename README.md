@@ -247,25 +247,25 @@ Now for running R on OSCER, just write a normal unix script, and add "Rscript (f
     # --- Save plot ---
     ggsave(
       filename = file.path(outdir, "nonsmokers_volcano_plot.png"), #CHANGE OUTPUT NAME
-  plot = p,
-  width = 8,
-  height = 6,
-  dpi = 300,
-  bg = "white"
-)
+      plot = p,
+      width = 8,
+      height = 6,
+      dpi = 300,
+       bg = "white"
+    )
 
     # --- Save full results ---
-    cat("Saving full results...\n")
-    tryCatch({
+            cat("Saving full results...\n")
+        tryCatch({
       write.csv(as.data.frame(res), file = file.path(outdir,     "nonsmokers_DESeq2_results.csv"))  #CHANGE OUTPUT NAME
-  cat("Full results saved.\n")
+      cat("Full results saved.\n")
 }, error = function(e) {
-  cat("Error saving full results:\n")
+      cat("Error saving full results:\n")
   print(e)
 })
 
     # --- Save significant results only ---
-    cat("Saving significant results...\n")
+        cat("Saving significant results...\n")
     tryCatch({
       sig_res <- subset(res, sig == "Significant")
       write.csv(as.data.frame(sig_res), file = file.path(outdir,                 "DESeq2_results_significant.csv"))    #CHANGE OUTPUT NAME
