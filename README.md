@@ -148,22 +148,22 @@ Now for running R on OSCER, just write a normal unix script, and add "Rscript (f
 
 
         # --- Output directory ---
-        outdir <- **"/ourdisk/hpc/rnafold/gjandebeur/dont_archive/batch"**
+        outdir <- "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/batch" #this is ur output dir
         dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
 
         cat("Loaded libraries and created output directory.\n")
 
         # --- Setup: Samples and files ---
-        samples <- c(**"24r1a", "24r2a", "32r1a", "32r2a", "36r1a", "36r2a"**)
-    salmon_dir <- "/input/directory/from/salmon/"
-files <- file.path(salmon_dir, samples, "quant.sf")
-names(files) <- samples
+        samples <- c("24r1a", "24r2a", "32r1a", "32r2a", "36r1a", "36r2a")
+    salmon_dir <- "/input/directory/from/salmon/"      #change ur samples and input directory
+    files <- file.path(salmon_dir, samples, "quant.sf")
+    names(files) <- samples
 
         # Sample metadata
         coldata <- data.frame(
       row.names = samples,
-        **condition = factor(c("control", "CSE", "control", "CSE", "control", "CSE")** )
-)
+        condition = factor(c("control", "CSE", "control", "CSE", "control", "CSE"))
+    )                             #change the conditions here
 
         cat("Prepared sample metadata and file paths.\n")
 
@@ -187,7 +187,7 @@ names(files) <- samples
 
     # --- Run DESeq2 ---
     dds <- DESeq(dds)
-    res <- results(dds, contrast = c(**"condition", "CSE", "control")**)
+    res <- results(dds, contrast = c("condition", "CSE", "control"))   #CHANGE CONDITIONS
 
         cat("Ran DESeq2 and extracted results.\n")
 
@@ -215,38 +215,38 @@ names(files) <- samples
     sig_genes <- subset(res, sig == "Significant" & !is.na(gene) & gene != "")
 
     # --- Volcano plot ---
-    p <- ggplot(as.data.frame(res), aes(x = log2FoldChange, y = neg_log10_padj, color =     sig)) +
+    p <- ggplot(as.data.frame(res), aes(x = log2FoldChange, y = neg_log10_padj, color =         sig)) +
       geom_point(alpha = 0.6, size = 1) +
       scale_color_manual(
         values = c("Significant" = "firebrick", "Not Significant" = "lightgrey"),
     breaks = c("Significant", "Not Significant")
-  ) +
-  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "blue") +
-  geom_hline(yintercept = -log10(pval_cutoff), linetype = "dashed", color = "blue") +
-  labs(
-    title = paste0("Volcano Plot of All Genes (p-adj ≤ ", pval_cutoff, ")"),
-    x = "Log2 Fold Change",
-    y = "-Log10 Adjusted P-value",
-    color = "Significance"
-  ) +
-  scale_x_continuous(breaks = seq(-6, 6, by = 2), limits = c(-6, 6)) +
-  scale_y_continuous(breaks = seq(0, 10, by = 2), limits = c(0, 10)) +
-  theme_minimal(base_size = 14) +
-  geom_text(
-    data = sig_genes,
-    aes(label = gene),
-    size = 2.5,
-    vjust = -0.5,
-    check_overlap = TRUE
-  )
+      ) +
+      geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "blue") +
+      geom_hline(yintercept = -log10(pval_cutoff), linetype = "dashed", color = "blue") +
+      labs(
+        title = paste0("Volcano Plot of All Genes (p-adj ≤ ", pval_cutoff, ")"),
+        x = "Log2 Fold Change",
+        y = "-Log10 Adjusted P-value",
+        color = "Significance"
+      ) +
+      scale_x_continuous(breaks = seq(-6, 6, by = 2), limits = c(-6, 6)) +
+      scale_y_continuous(breaks = seq(0, 10, by = 2), limits = c(0, 10)) +
+      theme_minimal(base_size = 14) +
+      geom_text(
+        data = sig_genes,
+        aes(label = gene),
+        size = 2.5,
+        vjust = -0.5,
+        check_overlap = TRUE
+      )
 
     # --- Define output directory ---
-    outdir <-**"/ourdisk/hpc/rnafold/gjandebeur/dont_archive/batch"**
+    outdir <-"/ourdisk/hpc/rnafold/gjandebeur/dont_archive/batch"    #CHANGE OUTPUT DIRECTORY
     if (!dir.exists(outdir)) dir.create(outdir, recursive = TRUE)
 
     # --- Save plot ---
     ggsave(
-      filename = file.path(outdir, **"nonsmokers_volcano_plot.png")**,
+      filename = file.path(outdir, "nonsmokers_volcano_plot.png"), #CHANGE OUTPUT NAME
   plot = p,
   width = 8,
   height = 6,
@@ -257,7 +257,7 @@ names(files) <- samples
     # --- Save full results ---
     cat("Saving full results...\n")
     tryCatch({
-      write.csv(as.data.frame(res), file = file.path(outdir,     **"nonsmokers_DESeq2_results.csv"**))
+      write.csv(as.data.frame(res), file = file.path(outdir,     "nonsmokers_DESeq2_results.csv"))  #CHANGE OUTPUT NAME
   cat("Full results saved.\n")
 }, error = function(e) {
   cat("Error saving full results:\n")
@@ -268,14 +268,14 @@ names(files) <- samples
     cat("Saving significant results...\n")
     tryCatch({
       sig_res <- subset(res, sig == "Significant")
-      write.csv(as.data.frame(sig_res), file = file.path(outdir,             **"DESeq2_results_significant.csv"**))
+      write.csv(as.data.frame(sig_res), file = file.path(outdir,                 "DESeq2_results_significant.csv"))    #CHANGE OUTPUT NAME
       cat("Significant results saved.\n")
-}, error = function(e) {
-  cat("Error saving significant results:\n")
-  print(e)
-})
+    }, error = function(e) {
+      cat("Error saving significant results:\n")
+      print(e)
+    })
 
-    cat("All steps completed.\n")
+        cat("All steps completed.\n")
 
 
 
