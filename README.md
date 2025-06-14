@@ -119,27 +119,26 @@ Salmon likes to put all results into a directory, and then the next step pulls d
         #mkdir -p "/ourdisk/hpc/rnafold/UR_USER/dont_archive/salmon/BYSAMPLE"
 
 
+**The following code you shouldn't need to run if you use my reference transcript file, but for the viral genome (if that ends up being used here) you'll use this.**
+
         salmon index -t "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/reference/gencode.v47.transcripts.fa" -i "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/reference/gencode.v47.transcripts_index" -k 31 
 
 
-**if the above one doesnt work try the one below this, I have both in my code but I believe the former is correct**
+I believe the part after "-i" is saying where the script can write all the little files it creates to index the reference.
 
-        salmon index -t         "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/reference/gencode.v47.transcripts.fa" 
-        -i "/input/to/reference/directory/"
-
-I believe the part after "-i" is saying where the script can right all the little files it creates to index the reference.
-
+**this is the important step**
 
         salmon quant -t "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/reference/gencode.v47.transcripts.fa" -l A -a
         "/input/ALIGNED/SORTED/data.bam" -p 8 --seqBias --gcBias -o "/this/is/output/directory/by/sample/"
 
+Online documentation had stuff on --seqBias and --gcBias so included, but I'm not 100% sure if they're necessary
 
-**once the above works, you run DEseq2 on the "quant.sf" files to produce an excel that will have your data used for the volcano plot**
-**this code will have to be adapted to yours, change the samples to whatever you have named yours and so forth.**
+Now for running R on OSCER, just write a normal unix script, and add "Rscript (file)" in that unix script. I've heard of people shutting down nodes from running python or R directly on the command line so I would recommend against.
+
 **No clue why but its very difficult to get the R packages working on OSCER, I use alot of ChatGPT when trying to do this and I believe there should be some modules already on oscer that have necessary packages (try module avail R).** 
-**I've put the volcanoplot and DEseq2 into one script, to run it you just open any .sh file, and write "Rscript" before listing the title of that script,
 
-## This is copy pasted from my script but theres only like 3 parts youll need to change
+
+## This is copy pasted from my script but theres only like 3 parts youll need to change, ive already combined the DEseq2 and volcano plot step into one so you should only have to update the parts of the following code that I have bolded.
    
     #!/usr/bin/env Rscript
     
@@ -149,7 +148,7 @@ I believe the part after "-i" is saying where the script can right all the littl
 
 
         # --- Output directory ---
-        outdir <- "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/batch"
+        outdir <- **"/ourdisk/hpc/rnafold/gjandebeur/dont_archive/batch"**
         dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
 
         cat("Loaded libraries and created output directory.\n")
@@ -188,7 +187,7 @@ names(files) <- samples
 
     # --- Run DESeq2 ---
     dds <- DESeq(dds)
-    res <- results(dds, contrast = c("condition", "CSE", "control"))
+    res <- results(dds, contrast = c(**"condition", "CSE", "control")**)
 
         cat("Ran DESeq2 and extracted results.\n")
 
@@ -242,12 +241,12 @@ names(files) <- samples
   )
 
     # --- Define output directory ---
-    outdir <- "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/batch"
+    outdir <-**"/ourdisk/hpc/rnafold/gjandebeur/dont_archive/batch"**
     if (!dir.exists(outdir)) dir.create(outdir, recursive = TRUE)
 
     # --- Save plot ---
     ggsave(
-      filename = file.path(outdir, "nonsmokers_volcano_plot.png"),
+      filename = file.path(outdir, **"nonsmokers_volcano_plot.png")**,
   plot = p,
   width = 8,
   height = 6,
@@ -258,7 +257,7 @@ names(files) <- samples
     # --- Save full results ---
     cat("Saving full results...\n")
     tryCatch({
-      write.csv(as.data.frame(res), file = file.path(outdir,     "nonsmokers_DESeq2_results.csv"))
+      write.csv(as.data.frame(res), file = file.path(outdir,     **"nonsmokers_DESeq2_results.csv"**))
   cat("Full results saved.\n")
 }, error = function(e) {
   cat("Error saving full results:\n")
@@ -269,7 +268,7 @@ names(files) <- samples
     cat("Saving significant results...\n")
     tryCatch({
       sig_res <- subset(res, sig == "Significant")
-      write.csv(as.data.frame(sig_res), file = file.path(outdir,             "DESeq2_results_significant.csv"))
+      write.csv(as.data.frame(sig_res), file = file.path(outdir,             **"DESeq2_results_significant.csv"**))
       cat("Significant results saved.\n")
 }, error = function(e) {
   cat("Error saving significant results:\n")
