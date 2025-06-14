@@ -261,8 +261,8 @@ Now for running R on OSCER, just write a normal unix script, and add "Rscript (f
       cat("Full results saved.\n")
     }, error = function(e) {
       cat("Error saving full results:\n")
-  print(e)
-})
+      print(e)
+    })
 
     # --- Save significant results only ---
         cat("Saving significant results...\n")
@@ -272,8 +272,8 @@ Now for running R on OSCER, just write a normal unix script, and add "Rscript (f
       cat("Significant results saved.\n")
     }, error = function(e) {
       cat("Error saving significant results:\n")
-      print(e)
-    })
+          print(e)
+        })
 
         cat("All steps completed.\n")
 
