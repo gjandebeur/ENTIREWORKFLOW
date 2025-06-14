@@ -138,7 +138,7 @@ Now for running R on OSCER, just write a normal unix script, and add "Rscript (f
 **No clue why but its very difficult to get the R packages working on OSCER, I use alot of ChatGPT when trying to do this and I believe there should be some modules already on oscer that have necessary packages (try module avail R).** 
 
 
-## This is copy pasted from my script but theres only like 3 parts youll need to change, ive already combined the DEseq2 and volcano plot step into one so you should only have to update the parts of the following code that I have bolded.
+## This is copy pasted from my script but theres only like 3 parts youll need to change, ive already combined the DEseq2 and volcano plot step into one so you should only have to update the parts of the following code that I've commented.
    
     #!/usr/bin/env Rscript
     
@@ -259,7 +259,7 @@ Now for running R on OSCER, just write a normal unix script, and add "Rscript (f
         tryCatch({
       write.csv(as.data.frame(res), file = file.path(outdir,     "nonsmokers_DESeq2_results.csv"))  #CHANGE OUTPUT NAME
       cat("Full results saved.\n")
-}, error = function(e) {
+    }, error = function(e) {
       cat("Error saving full results:\n")
   print(e)
 })
