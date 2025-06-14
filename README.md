@@ -89,4 +89,195 @@ output must be .bam and input is the .sam**
         samtools flagstat  "/THIS/IS/OUTPUT/FIRST/SORTED.BAM"  
 
 ## Flagstat shows your stats that you want! (total aligned #, mapped #, and map %). This is the info I think you'll need comparing the viral reference to using genome or transcriptome.
+
+
+
+
+
+# Counting Transcript Abundance and Plotting Differential Expression Volcano Plots
+
+Now for the complicated part
+
+after aligning to the reference, the goal is to count how many copies of each gene is expressed in each sample. This will be done using salmon, which can be installed directly into a conda environment for you (I'll add the exact code to run for this below too)
+
+        # Install Salmon in a conda environment
+        conda create -n salmon_env -c bioconda salmon
+        conda activate salmon_env
+
+So this part can be done on the login node, and add this little chunk of code to your data file, under the #SBATCH part but above your code.
+
         
+        echo "linking the Conda environment to $ENV_PATH..."
+        source /opt/oscer/software/Mamba/23.1.0-4/etc/profile.d/conda.sh
+        conda activate salmon_env
+
+
+Now for the salmon command itself to quantify. It's important that the transcriptome is used here as reference because it needs to be able to count isoforms. (the genome has higher accuracy in minimap step than transcript but that shouldn't change results for this software)
+
+Salmon likes to put all results into a directory, and then the next step pulls directly from it, so run this command but change to whatever directory your using. End the file name with the sample name you're running salmon on and don't add a "/" to the very end, this way the output will separate by sample and work much better for later steps.
+
+        #mkdir -p "/ourdisk/hpc/rnafold/UR_USER/dont_archive/salmon/BYSAMPLE"
+
+
+        salmon index -t "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/reference/gencode.v47.transcripts.fa" -i "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/reference/gencode.v47.transcripts_index" -k 31 
+
+
+**if the above one doesnt work try the one below this, I have both in my code but I believe the former is correct**
+
+        salmon index -t         "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/reference/gencode.v47.transcripts.fa" 
+        -i "/input/to/reference/directory/"
+
+I believe the part after "-i" is saying where the script can right all the little files it creates to index the reference.
+
+
+        salmon quant -t "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/reference/gencode.v47.transcripts.fa" -l A -a
+        "/input/ALIGNED/SORTED/data.bam" -p 8 --seqBias --gcBias -o "/this/is/output/directory/by/sample/"
+
+
+**once the above works, you run DEseq2 on the "quant.sf" files to produce an excel that will have your data used for the volcano plot**
+**this code will have to be adapted to yours, change the samples to whatever you have named yours and so forth.**
+**No clue why but its very difficult to get the R packages working on OSCER, I use alot of ChatGPT when trying to do this and I believe there should be some modules already on oscer that have necessary packages (try module avail R).** 
+**I've put the volcanoplot and DEseq2 into one script, to run it you just open any .sh file, and write "Rscript" before listing the title of that script,
+
+## This is copy pasted from my script but theres only like 3 parts youll need to change
+   
+    #!/usr/bin/env Rscript
+    
+    library(DESeq2)
+    library(tximport)
+    library(ggplot2)
+
+
+        # --- Output directory ---
+        outdir <- "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/batch"
+        dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
+
+        cat("Loaded libraries and created output directory.\n")
+
+        # --- Setup: Samples and files ---
+        samples <- c(**"24r1a", "24r2a", "32r1a", "32r2a", "36r1a", "36r2a"**)
+    salmon_dir <- "/input/directory/from/salmon/"
+files <- file.path(salmon_dir, samples, "quant.sf")
+names(files) <- samples
+
+        # Sample metadata
+        coldata <- data.frame(
+      row.names = samples,
+        **condition = factor(c("control", "CSE", "control", "CSE", "control", "CSE")** )
+)
+
+        cat("Prepared sample metadata and file paths.\n")
+
+        # --- Import counts ---
+        txi <- tximport(files, type = "salmon", txOut = TRUE)
+        cat("Imported quant.sf files with tximport.\n")
+
+    # --- Filter low count transcripts ---
+    keep <- rowSums(txi$counts) > 10
+    txi$counts <- txi$counts[keep, ]
+    txi$abundance <- txi$abundance[keep, ]
+    txi$length <- txi$length[keep, ]
+
+    cat("Filtered low count transcripts.\n")
+
+    #    --- Create DESeq2 dataset ---
+    dds <- DESeqDataSetFromTximport(txi, colData = coldata, design = ~condition)
+    dds <- dds[rowSums(counts(dds)) > 0, ]  # Extra filter
+
+    cat("Created DESeq2 dataset.\n")
+
+    # --- Run DESeq2 ---
+    dds <- DESeq(dds)
+    res <- results(dds, contrast = c("condition", "CSE", "control"))
+
+        cat("Ran DESeq2 and extracted results.\n")
+
+    # --- Handle p-values ---
+    if (all(is.na(res$padj))) {
+      stop("All adjusted p-values are NA. Check input or filtering.")
+    }
+    min_padj <- min(res$padj[res$padj > 0], na.rm = TRUE)
+    res$padj[res$padj == 0] <- min_padj
+
+    # --- Calculate -log10 adjusted p-value ---
+    res$neg_log10_padj <- -log10(res$padj)
+
+    # --- Add significance flag with relaxed cutoff ---
+    pval_cutoff <- 0.075   # Change this as needed (e.g., 0.05, 0.1)
+    res$sig <- ifelse(res$padj <= pval_cutoff & abs(res$log2FoldChange) >= 1, "Significant",     "Not Significant")
+
+    # Make 'sig' a factor with explicit levels to avoid legend artifacts
+    res$sig <- factor(res$sig, levels = c("Significant", "Not Significant"))
+
+    # --- Extract gene names (6th field from pipe-separated rownames) ---
+    res$gene <- sapply(strsplit(rownames(res), "\\|"), function(x) x[6])
+
+    # --- Subset for gene labels that are not empty or NA ---
+    sig_genes <- subset(res, sig == "Significant" & !is.na(gene) & gene != "")
+
+    # --- Volcano plot ---
+    p <- ggplot(as.data.frame(res), aes(x = log2FoldChange, y = neg_log10_padj, color =     sig)) +
+      geom_point(alpha = 0.6, size = 1) +
+      scale_color_manual(
+        values = c("Significant" = "firebrick", "Not Significant" = "lightgrey"),
+    breaks = c("Significant", "Not Significant")
+  ) +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "blue") +
+  geom_hline(yintercept = -log10(pval_cutoff), linetype = "dashed", color = "blue") +
+  labs(
+    title = paste0("Volcano Plot of All Genes (p-adj ≤ ", pval_cutoff, ")"),
+    x = "Log2 Fold Change",
+    y = "-Log10 Adjusted P-value",
+    color = "Significance"
+  ) +
+  scale_x_continuous(breaks = seq(-6, 6, by = 2), limits = c(-6, 6)) +
+  scale_y_continuous(breaks = seq(0, 10, by = 2), limits = c(0, 10)) +
+  theme_minimal(base_size = 14) +
+  geom_text(
+    data = sig_genes,
+    aes(label = gene),
+    size = 2.5,
+    vjust = -0.5,
+    check_overlap = TRUE
+  )
+
+    # --- Define output directory ---
+    outdir <- "/ourdisk/hpc/rnafold/gjandebeur/dont_archive/batch"
+    if (!dir.exists(outdir)) dir.create(outdir, recursive = TRUE)
+
+    # --- Save plot ---
+    ggsave(
+      filename = file.path(outdir, "nonsmokers_volcano_plot.png"),
+  plot = p,
+  width = 8,
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+
+    # --- Save full results ---
+    cat("Saving full results...\n")
+    tryCatch({
+      write.csv(as.data.frame(res), file = file.path(outdir,     "nonsmokers_DESeq2_results.csv"))
+  cat("Full results saved.\n")
+}, error = function(e) {
+  cat("Error saving full results:\n")
+  print(e)
+})
+
+    # --- Save significant results only ---
+    cat("Saving significant results...\n")
+    tryCatch({
+      sig_res <- subset(res, sig == "Significant")
+      write.csv(as.data.frame(sig_res), file = file.path(outdir,             "DESeq2_results_significant.csv"))
+      cat("Significant results saved.\n")
+}, error = function(e) {
+  cat("Error saving significant results:\n")
+  print(e)
+})
+
+    cat("All steps completed.\n")
+
+
+
+
